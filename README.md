@@ -1,12 +1,25 @@
 [![Netlify Status](https://api.netlify.com/api/v1/badges/d6b49afd-cd07-4714-87d1-bc8e8239068f/deploy-status)](https://app.netlify.com/sites/braindump-jethrokuan/deploys)
 
-# Jethro's Braindump
+# Eigil's Braindump
+
+Adapted from [Jethro's Braindump](https://github.com/jethrokuan/braindump)
 
 This braindump is generated via [ox-hugo][ox-hugo] and uses the
 [cortex][cortex] theme.
 
-The org files used to generate the markdown files are also hosted here
-for posterity. They can be found in [the org folder][org].
+To use this version of the script, modify `build.py`, pointing it at your folder of org-files.
+You also need a export-to-markdown setup in your emacs config. Here is mine:
+
+```elisp
+(defun ayegill/braindump-file (file)
+  (remove-hook! 'find-file-hook #'+org-roam-open-buffer-maybe-h)
+  (with-current-buffer (find-file-noselect file)
+  (projectile-mode -1)
+  (dtrt-indent-mode -1)
+  (let ((org-id-extra-files (find-lisp-find-files org-roam-directory "\.org$"))
+        (org-hugo-base-dir "~/projects/braindump"))
+    (org-hugo-export-wim-to-md))))
+```
 
 ## Installation instructions
 
@@ -20,8 +33,12 @@ To convert all Org files into Markdown, run:
 ```bash
 ./build.py
 ```
+to generate the build instructions.
+`build.py` is simple enough to inspect.
 
-`build.py` is simple enough to inspect. Once the Markdown files are generated,
+Then run `ninja` to run the build.
+
+ Once the Markdown files are generated,
 we can use Hugo to generate the website.
 
 Install [hugo][hugo]. E.g., on a Mac with Homebrew:
@@ -40,6 +57,12 @@ Now run hugo to generate the files (find them in `/public`):
 Or run the following to get an immediately browsable website on localhost:
 
     $ hugo serve
+
+## Common issues
+
+- If some of your org-files contain colons, hugo will choke on the links. There's no way around this execpt to rename your files. To assist this, `build.py` automatically skips files containing colons, and prints a list of them.
+- If some of your files contain org-hugo instructions, it will get confused.
+- I've inserted a dummy "Blog Posts" file because I had a file that broke the script a lot
 
 [hugo]: https://gohugo.io/
 [ox-hugo]: https://github.com/kaushalmodi/ox-hugo
